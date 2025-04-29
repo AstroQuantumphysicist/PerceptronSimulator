@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Single Layer Perceptron Simulation</title>
+  <!-- Tailwind via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center p-6">
+
+  <h1 class="text-2xl font-bold mb-6">Single Layer Perceptron Simulation</h1>
+
+  <!-- Visualisierung -->
+  <div class="relative mb-8">
+    <svg id="network" width="400" height="200">
+      <!-- Eingangsneuronen -->
+      <circle cx="80" cy="70" r="24" class="fill-blue-200 stroke-blue-600 stroke-2"></circle>
+      <text x="80" y="75" text-anchor="middle" class="text-lg font-semibold fill-blue-800">x₁</text>
+      <circle cx="80" cy="130" r="24" class="fill-blue-200 stroke-blue-600 stroke-2"></circle>
+      <text x="80" y="135" text-anchor="middle" class="text-lg font-semibold fill-blue-800">x₂</text>
+
+      <!-- Ausgangsneuron -->
+      <circle id="output-node" cx="320" cy="100" r="32" class="fill-gray-200 stroke-gray-600 stroke-2 transition-colors duration-200"></circle>
+      <text id="output-label" x="320" y="105" text-anchor="middle" class="text-xl font-bold fill-gray-800">?</text>
+
+      <!-- Verbindungen -->
+      <line x1="104" y1="70" x2="288" y2="100" class="stroke-gray-500 stroke"></line>
+      <text id="w1-label" x="196" y="60" text-anchor="middle" class="text-base font-medium fill-gray-700">w₁</text>
+      <line x1="104" y1="130" x2="288" y2="100" class="stroke-gray-500 stroke"></line>
+      <text id="w2-label" x="196" y="150" text-anchor="middle" class="text-base font-medium fill-gray-700">w₂</text>
+      <!-- Bias-Anzeige -->
+      <text id="bias-label" x="320" y="40" text-anchor="middle" class="text-sm font-medium fill-gray-700">b</text>
+    </svg>
+  </div>
+
+  <!-- Regler -->
+  <div class="grid grid-cols-2 md:grid-cols-3 gap-6 mb-6 w-full max-w-2xl">
+    <!-- x1 -->
+    <div>
+      <label for="x1" class="block font-medium mb-1">x₁: <span id="x1-val">0</span></label>
+      <input id="x1" type="range" min="-5" max="5" step="0.1" value="0" class="w-full">
+    </div>
+    <!-- w1 -->
+    <div>
+      <label for="w1" class="block font-medium mb-1">w₁: <span id="w1-val">0</span></label>
+      <input id="w1" type="range" min="-5" max="5" step="0.1" value="0" class="w-full">
+    </div>
+    <!-- x2 -->
+    <div>
+      <label for="x2" class="block font-medium mb-1">x₂: <span id="x2-val">0</span></label>
+      <input id="x2" type="range" min="-5" max="5" step="0.1" value="0" class="w-full">
+    </div>
+    <!-- w2 -->
+    <div>
+      <label for="w2" class="block font-medium mb-1">w₂: <span id="w2-val">0</span></label>
+      <input id="w2" type="range" min="-5" max="5" step="0.1" value="0" class="w-full">
+    </div>
+    <!-- bias -->
+    <div>
+      <label for="bias" class="block font-medium mb-1">b: <span id="bias-val">0</span></label>
+      <input id="bias" type="range" min="-10" max="10" step="0.1" value="0" class="w-full">
+    </div>
+  </div>
+
+  <!-- Ausgabe -->
+  <div id="info" class="text-lg font-medium">
+    Summe: <span id="sum-val">0</span> &nbsp;|&nbsp; Output: <span id="out-val">?</span>
+  </div>
+
+  <!-- Logik -->
+  <script>
+    // Elemente holen
+    const sliders = ['x1','w1','x2','w2','bias'];
+    const state = {};
+    sliders.forEach(id => {
+      state[id] = parseFloat(document.getElementById(id).value);
+      // Event-Handler
+      document.getElementById(id).addEventListener('input', e => {
+        state[id] = parseFloat(e.target.value);
+        document.getElementById(id + '-val').textContent = state[id];
+        updatePerceptron();
+      });
+    });
+
+    // Aktivierungsfunktion (Step bei 0)
+    function activate(sum) {
+      return sum >= 0 ? 1 : 0;
+    }
+
+    // Perceptron berechnen und UI updaten
+    function updatePerceptron() {
+      const { x1, x2, w1, w2, bias } = state;
+      // Gewichtete Summe
+      const sum = x1 * w1 + x2 * w2 + bias;
+      const out = activate(sum);
+
+      // Anzeige aktualisieren
+      document.getElementById('sum-val').textContent = sum.toFixed(2);
+      document.getElementById('out-val').textContent = out;
+
+      // Output-Neuron einfärben
+      const outputNode = document.getElementById('output-node');
+      const outputLabel = document.getElementById('output-label');
+      if (out === 1) {
+        outputNode.classList.replace('fill-gray-200', 'fill-green-300');
+        outputLabel.textContent = '1';
+      } else {
+        outputNode.classList.replace('fill-green-300', 'fill-red-300');
+        outputLabel.textContent = '0';
+      }
+
+      // Gewichts- und Bias-Beschriftungen updaten
+      document.getElementById('w1-label').textContent = `w₁=${w1}`;
+      document.getElementById('w2-label').textContent = `w₂=${w2}`;
+      document.getElementById('bias-label').textContent = `b=${bias}`;
+    }
+
+    // Initiales Rendern
+    window.addEventListener('load', updatePerceptron);
+  </script>
+
+</body>
+</html>
